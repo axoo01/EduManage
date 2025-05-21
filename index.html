@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">EduManage</h1>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#tab-section" onclick="showTab('features')">Features</a>
+                <a href="#tab-section" onclick="showTab('about')">About</a>
+                <a href="login.html" class="login-btn">Log In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Welcome to EduManage</h1>
+            <p>A modern Student Management System designed to streamline administrative tasks and centralize student data with ease.</p>
+            <a href="login.html" class="btn-cta">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Tabbed Section (Features & About) -->
+    <section id="tab-section" class="tab-section">
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showTab('features')">Features</button>
+                <button class="tab-btn" onclick="showTab('about')">About</button>
+            </div>
+            <div id="features" class="tab-content active">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Secure Data Management</h3>
+                        <p>Safely store and manage student records with robust security features.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Intuitive Interface</h3>
+                        <p>User-friendly design makes navigation and data updates a breeze.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Real-Time Updates</h3>
+                        <p>Instantly view and edit student data with seamless performance.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Efficient Reporting</h3>
+                        <p>Generate detailed reports on student data with ease and accuracy.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="about" class="tab-content">
+                <div class="about-content">
+                    <h2>About EduManage</h2>
+                    <p>EduManage is a cutting-edge platform built to simplify student data management for educational institutions. With a focus on security, accessibility, and ease of use, our system empowers administrators to focus on what matters most—education.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 EduManage. All rights reserved.</p>
+        <p>Contact: axsupport@edumanage.com</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Student Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">EduManage</h1>
+            <div class="nav-links">
+                <a href="index.html#home">Home</a>
+                <a href="index.html?tab=features#tab-section">Features</a>
+                <a href="index.html?tab=about#tab-section">About</a>
+                <a href="login.html" class="login-btn active">Log In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login/Registration Section -->
+    <section class="login-section">
+        <div class="login-container">
+            <div class="login-box">
+                <h2 id="form-title">Log In</h2>
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form" action="manage.php" method="POST" style="display: block;">
+                    <input type="hidden" name="action" value="login">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn-cta">Log In</button>
+                    <p id="error-message" class="error-message"></p>
+                </form>
+                <!-- Registration Form -->
+                <form id="register-form" class="auth-form" action="manage.php" method="POST" style="display: none;">
+                    <input type="hidden" name="action" value="register">
+                    <div class="form-group">
+                        <label for="reg-username">Username</label>
+                        <input type="text" id="reg-username" name="username" placeholder="Choose a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" name="password" placeholder="Choose a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="btn-cta">Sign Up</button>
+                    <p id="reg-error-message" class="error-message"></p>
+                </form>
+                <p class="toggle-form">
+                    <a href="#" id="toggle-link" onclick="toggleForm()">Don’t have an account? <span class="toggle-action">Sign Up</span></a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 EduManage. All rights reserved.</p>
+        <p>Contact: support@edumanage.com</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Display error messages from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const message = urlParams.get('message');
+        const errorMessage = document.getElementById('error-message');
+        const regErrorMessage = document.getElementById('reg-error-message');
+
+        if (error) {
+            if (error === 'invalid') {
+                errorMessage.textContent = 'Invalid username or password';
+                alert('Login failed: Invalid username or password');
+            } else if (error === 'database') {
+                errorMessage.textContent = 'Database error. Please try again later';
+                alert('Login failed: Database error');
+            } else if (error === 'unauthenticated') {
+                errorMessage.textContent = 'Please log in to access the dashboard';
+                alert('Access denied: Please log in');
+            }
+        } else if (message) {
+            errorMessage.textContent = decodeURIComponent(message);
+            regErrorMessage.textContent = decodeURIComponent(message);
+            alert(decodeURIComponent(message));
+        }
+    </script>
+</body>
+</html>
