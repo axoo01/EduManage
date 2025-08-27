@@ -13,7 +13,7 @@ if (!isset($_POST['action']) || ($_POST['action'] !== 'login' && $_POST['action'
     }
 }
 
-// Database connection using Render's DATABASE_URL
+// Database connection using Render's PostgreSQL DATABASE_URL
 try {
     $database_url = getenv("DATABASE_URL");
     if (!$database_url) {
@@ -31,7 +31,8 @@ try {
     $username = $url["user"];
     $password = $url["pass"];
     $dbname = substr($url["path"], 1);
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $port = isset($url["port"]) ? $url["port"] : 5432;
+    $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     file_put_contents('debug.log', date('Y-m-d H:i:s') . ": DB Connection failed: " . $e->getMessage() . "\n", FILE_APPEND);
@@ -58,7 +59,7 @@ $logged_in_user = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest'
 $new_enrollments = 0;
 $reports_generated = 0;
 try {
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM students WHERE MONTH(enrollment_date) = MONTH(CURRENT_DATE()) AND YEAR(enrollment_date) = YEAR(CURRENT_DATE())");
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM students WHERE EXTRACT(MONTH FROM enrollment_date) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM enrollment_date) = EXTRACT(YEAR FROM CURRENT_DATE)");
     $new_enrollments = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     $reports_generated = 5; // Placeholder
 } catch (PDOException $e) {
@@ -162,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $query .= " AND student_id = :search_value";
                 $params[':search_value'] = $search_value;
             } elseif ($search_by === 'name') {
-                $query .= " AND CONCAT(first_name, ' ', last_name) LIKE :search_value";
+                $query .= " AND CONCAT(first_name, ' ', last_name) ILIKE :search_value";
                 $params[':search_value'] = "%$search_value%";
             } elseif ($search_by === 'enrollment_date') {
                 $query .= " AND enrollment_date = :search_value";
