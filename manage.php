@@ -5,8 +5,8 @@ session_start();
 // Debug: Log session status
 file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Session ID: " . session_id() . ", Username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : 'none') . "\n", FILE_APPEND);
 
-// Only check session for non-login actions
-if (!isset($_POST['action']) || $_POST['action'] !== 'login') {
+// Only check session for non-login/register actions
+if (!isset($_POST['action']) || ($_POST['action'] !== 'login' && $_POST['action'] !== 'register')) {
     if (!isset($_SESSION['username'])) {
         header("Location: login.html?error=unauthenticated");
         exit;
@@ -14,7 +14,7 @@ if (!isset($_POST['action']) || $_POST['action'] !== 'login') {
 }
 
 $host = 'localhost';
-$dbname = 'EduManage';
+$dbname = 'edumanage';
 $username = 'root';
 $password = '';
 
@@ -43,7 +43,7 @@ $logged_in_user = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest'
 $new_enrollments = 0;
 $reports_generated = 0;
 try {
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM Students WHERE MONTH(enrollment_date) = MONTH(CURRENT_DATE()) AND YEAR(enrollment_date) = YEAR(CURRENT_DATE())");
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM students WHERE MONTH(enrollment_date) = MONTH(CURRENT_DATE()) AND YEAR(enrollment_date) = YEAR(CURRENT_DATE())");
     $new_enrollments = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     $reports_generated = 5; // Placeholder
 } catch (PDOException $e) {
@@ -56,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pass = $_POST['password'];
 
         try {
-            $stmt = $pdo->prepare("SELECT username FROM Users WHERE username = ? AND password = ?");
-            $stmt->execute([$user, $pass]);
+            $stmt = $pdo->prepare("SELECT username, password FROM users WHERE username = ?");
+            $stmt->execute([$user]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row) {
+            if ($row && password_verify($pass, $row['password'])) {
                 $_SESSION['username'] = $user;
                 file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Login successful for $user, Session set\n", FILE_APPEND);
                 header("Location: manage.php?section=dashboard");
@@ -80,24 +80,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $confirm_pass = $_POST['confirm_password'];
 
         if ($pass !== $confirm_pass) {
-            $error_message = "Passwords do not match";
-        } else {
-            try {
-                $stmt = $pdo->prepare("SELECT username FROM Users WHERE username = ?");
-                $stmt->execute([$user]);
-                if ($stmt->fetch()) {
-                    $error_message = "Username already exists";
-                } else {
-                    $stmt = $pdo->prepare("INSERT INTO Users (username, password) VALUES (?, ?)");
-                    $stmt->execute([$user, $pass]);
-                    $_SESSION['username'] = $user;
-                    $success_message = "Account created successfully";
-                    header("Location: manage.php?section=dashboard");
-                    exit;
-                }
-            } catch (PDOException $e) {
-                $error_message = "Registration failed: " . $e->getMessage();
+            file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Registration failed for $user: Passwords do not match\n", FILE_APPEND);
+            header("Location: login.html?error=password_mismatch");
+            exit;
+        }
+
+        try {
+            $stmt = $pdo->prepare("SELECT username FROM users WHERE username = ?");
+            $stmt->execute([$user]);
+            if ($stmt->fetch()) {
+                file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Registration failed for $user: Username exists\n", FILE_APPEND);
+                header("Location: login.html?error=username_exists");
+                exit;
             }
+
+            $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+            $stmt->execute([$user, $hashed_password]);
+            file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Registration successful for $user\n", FILE_APPEND);
+            header("Location: login.html?success=registered");
+            exit;
+        } catch (PDOException $e) {
+            file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Registration DB error: " . $e->getMessage() . "\n", FILE_APPEND);
+            header("Location: login.html?error=database");
+            exit;
         }
     } elseif ($action === 'add_student' || $action === 'edit_student') {
         $first_name = $_POST['first_name'];
@@ -108,12 +114,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             if ($action === 'add_student') {
-                $stmt = $pdo->prepare("INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date) VALUES (?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO students (first_name, last_name, email, date_of_birth, enrollment_date) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$first_name, $last_name, $email, $dob, $enrollment_date]);
                 $success_message = "Student added successfully";
             } elseif ($action === 'edit_student') {
                 $student_id = $_POST['student_id'];
-                $stmt = $pdo->prepare("UPDATE Students SET first_name = ?, last_name = ?, email = ?, date_of_birth = ?, enrollment_date = ? WHERE student_id = ?");
+                $stmt = $pdo->prepare("UPDATE students SET first_name = ?, last_name = ?, email = ?, date_of_birth = ?, enrollment_date = ? WHERE student_id = ?");
                 $stmt->execute([$first_name, $last_name, $email, $dob, $enrollment_date, $student_id]);
                 $success_message = "Student updated successfully";
             }
@@ -123,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'delete_student') {
         $student_id = $_POST['student_id'];
         try {
-            $stmt = $pdo->prepare("DELETE FROM Students WHERE student_id = ?");
+            $stmt = $pdo->prepare("DELETE FROM students WHERE student_id = ?");
             $stmt->execute([$student_id]);
             $success_message = "Student deleted successfully";
         } catch (PDOException $e) {
@@ -133,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $search_by = $_POST['search_by'];
         $search_value = filter_input(INPUT_POST, 'search_value', FILTER_SANITIZE_STRING);
 
-        $query = "SELECT student_id, first_name, last_name, email, date_of_birth, enrollment_date FROM Students WHERE 1=1";
+        $query = "SELECT student_id, first_name, last_name, email, date_of_birth, enrollment_date FROM students WHERE 1=1";
         $params = [];
 
         if (!empty($search_value)) {
@@ -189,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if (!$search_performed) {
     try {
-        $stmt = $pdo->query("SELECT student_id, first_name, last_name, email, date_of_birth, enrollment_date FROM Students ORDER BY last_name, first_name");
+        $stmt = $pdo->query("SELECT student_id, first_name, last_name, email, date_of_birth, enrollment_date FROM students ORDER BY last_name, first_name");
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $total_students = count($students);
     } catch (PDOException $e) {
@@ -200,7 +206,7 @@ if (!$search_performed) {
 $edit_student = null;
 if (isset($_GET['edit_id'])) {
     try {
-        $stmt = $pdo->prepare("SELECT * FROM Students WHERE student_id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM students WHERE student_id = ?");
         $stmt->execute([$_GET['edit_id']]);
         $edit_student = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {

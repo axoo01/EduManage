@@ -34,14 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Login/Registration Form Toggle
-    if (document.getElementById('login-form')) {
-        console.log('Login form detected');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const errorMessage = document.getElementById('error-message');
-        const formTitle = document.getElementById('form-title');
-        const toggleLink = document.getElementById('toggle-link');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const errorMessage = document.getElementById('error-message');
+    const regErrorMessage = document.getElementById('reg-error-message');
+    const formTitle = document.getElementById('form-title');
+    const toggleLink = document.getElementById('toggle-link');
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const success = urlParams.get('success');
 
+    if (loginForm && registerForm && errorMessage && regErrorMessage && formTitle && toggleLink) {
         window.toggleForm = function() {
             if (loginForm.style.display === 'block') {
                 loginForm.style.display = 'none';
@@ -49,14 +52,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 formTitle.textContent = 'Sign Up';
                 toggleLink.innerHTML = 'Already have an account? <span class="toggle-action">Log In</span>';
                 errorMessage.textContent = '';
+                regErrorMessage.textContent = '';
             } else {
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
                 formTitle.textContent = 'Log In';
                 toggleLink.innerHTML = 'Don’t have an account? <span class="toggle-action">Sign Up</span>';
                 errorMessage.textContent = '';
+                regErrorMessage.textContent = '';
             }
         };
+
+        // Handle success/error messages with slight delay to ensure DOM is ready
+        setTimeout(() => {
+            if (success === 'registered') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                formTitle.textContent = 'Log In';
+                toggleLink.innerHTML = 'Don’t have an account? <span class="toggle-action">Sign Up</span>';
+                errorMessage.textContent = 'Registration successful! Please log in.';
+                errorMessage.className = 'success-message';
+                errorMessage.style.display = 'block';
+                errorMessage.style.visibility = 'visible';
+                errorMessage.style.opacity = '1';
+            } else if (error) {
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                formTitle.textContent = 'Sign Up';
+                toggleLink.innerHTML = 'Already have an account? <span class="toggle-action">Log In</span>';
+                regErrorMessage.className = 'error-message';
+                regErrorMessage.style.display = 'block';
+                regErrorMessage.style.visibility = 'visible';
+                regErrorMessage.style.opacity = '1';
+                if (error === 'username_exists') {
+                    regErrorMessage.textContent = 'This username is already registered';
+                } else if (error === 'password_mismatch') {
+                    regErrorMessage.textContent = 'Passwords do not match';
+                } else if (error === 'database') {
+                    regErrorMessage.textContent = 'Database error, please try again';
+                } else if (error === 'invalid') {
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
+                    formTitle.textContent = 'Log In';
+                    toggleLink.innerHTML = 'Don’t have an account? <span class="toggle-action">Sign Up</span>';
+                    errorMessage.textContent = 'Invalid username or password';
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.display = 'block';
+                    errorMessage.style.visibility = 'visible';
+                    errorMessage.style.opacity = '1';
+                } else if (error === 'unauthenticated') {
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
+                    formTitle.textContent = 'Log In';
+                    toggleLink.innerHTML = 'Don’t have an account? <span class="toggle-action">Sign Up</span>';
+                    errorMessage.textContent = 'Please log in to access the dashboard';
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.display = 'block';
+                    errorMessage.style.visibility = 'visible';
+                    errorMessage.style.opacity = '1';
+                }
+            }
+        }, 100); // 100ms delay to ensure DOM is fully loaded
     }
 
     // Tab Switching for Features and About
