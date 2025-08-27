@@ -2,7 +2,7 @@ services:
   - type: web
     name: edumanage
     env: docker
-    repo: https://github.com/axoo01/EduManage.git
+    repo: https://github.com/axoo01/EduManage
     buildCommand: docker build -t edumanage .
     startCommand: docker run -p $PORT:80 edumanage
     envVars:
@@ -10,9 +10,9 @@ services:
         fromDatabase:
           name: edumanage_db
           property: connectionString
-  - type: pserv
+  - type: pgsql
     name: edumanage_db
-    env: mysql
+    env: postgresql
     disk:
-      name: mysql-data
+      name: pg-data
       sizeGB: 1
