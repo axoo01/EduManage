@@ -2,7 +2,7 @@ services:
   - type: web
     name: edumanage
     env: php
-    repo: https://github.com/your-username/your-repo
+    repo: https://github.com/axoo01/EduManage.git
     buildCommand: ""
     startCommand: "php -S 0.0.0.0:$PORT"
     envVars:
