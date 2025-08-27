@@ -15,7 +15,18 @@ if (!isset($_POST['action']) || ($_POST['action'] !== 'login' && $_POST['action'
 
 // Database connection using Render's DATABASE_URL
 try {
-    $url = parse_url(getenv("DATABASE_URL"));
+    $database_url = getenv("DATABASE_URL");
+    if (!$database_url) {
+        file_put_contents('debug.log', date('Y-m-d H:i:s') . ": DATABASE_URL not set\n", FILE_APPEND);
+        header("Location: login.html?error=database");
+        exit();
+    }
+    $url = parse_url($database_url);
+    if (!$url || !isset($url['host']) || !isset($url['user']) || !isset($url['pass']) || !isset($url['path'])) {
+        file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Invalid DATABASE_URL format: " . $database_url . "\n", FILE_APPEND);
+        header("Location: login.html?error=database");
+        exit();
+    }
     $host = $url["host"];
     $username = $url["user"];
     $password = $url["pass"];
@@ -29,7 +40,9 @@ try {
 }
 
 if (!file_exists('vendor/autoload.php')) {
-    die("Error: vendor/autoload.php not found. Run 'composer require tecnickcom/tcpdf' in the project root.");
+    file_put_contents('debug.log', date('Y-m-d H:i:s') . ": vendor/autoload.php not found\n", FILE_APPEND);
+    header("Location: login.html?error=dependency");
+    exit();
 }
 require_once 'vendor/autoload.php';
 
