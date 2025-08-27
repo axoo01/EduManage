@@ -13,23 +13,25 @@ if (!isset($_POST['action']) || ($_POST['action'] !== 'login' && $_POST['action'
     }
 }
 
-$host = 'localhost';
-$dbname = 'edumanage';
-$username = 'root';
-$password = '';
+// Database connection using Render's DATABASE_URL
+try {
+    $url = parse_url(getenv("DATABASE_URL"));
+    $host = $url["host"];
+    $username = $url["user"];
+    $password = $url["pass"];
+    $dbname = substr($url["path"], 1);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    file_put_contents('debug.log', date('Y-m-d H:i:s') . ": DB Connection failed: " . $e->getMessage() . "\n", FILE_APPEND);
+    header("Location: login.html?error=database");
+    exit();
+}
 
 if (!file_exists('vendor/autoload.php')) {
     die("Error: vendor/autoload.php not found. Run 'composer require tecnickcom/tcpdf' in the project root.");
 }
 require_once 'vendor/autoload.php';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    file_put_contents('debug.log', date('Y-m-d H:i:s') . ": DB Connection failed: " . $e->getMessage() . "\n", FILE_APPEND);
-    die("Connection failed: " . $e->getMessage());
-}
 
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 $success_message = '';
