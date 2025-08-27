@@ -1,9 +1,9 @@
 FROM php:8.2-apache
 
-# Install MySQL client and extensions
+# Install PostgreSQL client and PDO extension
 RUN apt-get update && apt-get install -y \
-    default-mysql-client \
-    && docker-php-ext-install mysqli pdo pdo_mysql
+    libpq-dev \
+    && docker-php-ext-install pdo_pgsql
 
 # Copy project files to Apache's web root
 COPY . /var/www/html
