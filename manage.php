@@ -36,6 +36,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     file_put_contents('debug.log', date('Y-m-d H:i:s') . ": DB Connection failed: " . $e->getMessage() . "\n", FILE_APPEND);
+    echo "DB Connection Error: " . $e->getMessage(); // Temporary debug
     header("Location: login.html?error=database");
     exit();
 }
@@ -64,6 +65,7 @@ try {
     $reports_generated = 5; // Placeholder
 } catch (PDOException $e) {
     $error_message = "Failed to fetch stats: " . $e->getMessage();
+    echo "Stats Error: " . $e->getMessage(); // Temporary debug
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -87,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Login DB error: " . $e->getMessage() . "\n", FILE_APPEND);
+            echo "Login DB Error: " . $e->getMessage(); // Temporary debug
             header("Location: login.html?error=database");
             exit;
         }
@@ -118,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } catch (PDOException $e) {
             file_put_contents('debug.log', date('Y-m-d H:i:s') . ": Registration DB error: " . $e->getMessage() . "\n", FILE_APPEND);
+            echo "Registration DB Error: " . $e->getMessage(); // Temporary debug
             header("Location: login.html?error=database");
             exit;
         }
@@ -141,6 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             $error_message = "Operation failed: " . $e->getMessage();
+            echo "Student Operation DB Error: " . $e->getMessage(); // Temporary debug
         }
     } elseif ($action === 'delete_student') {
         $student_id = $_POST['student_id'];
@@ -150,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success_message = "Student deleted successfully";
         } catch (PDOException $e) {
             $error_message = "Deletion failed: " . $e->getMessage();
+            echo "Delete Student DB Error: " . $e->getMessage(); // Temporary debug
         }
     } elseif ($action === 'search_students') {
         $search_by = $_POST['search_by'];
@@ -181,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $search_performed = true;
         } catch (PDOException $e) {
             $error_message = "Search failed: " . $e->getMessage();
+            echo "Search DB Error: " . $e->getMessage(); // Temporary debug
             $students = [];
             $total_students = 0;
         }
@@ -205,6 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $error_message = "PDF generation failed: " . $e->getMessage();
             file_put_contents('pdf_error.log', date('Y-m-d H:i:s') . ': ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            echo "PDF Error: " . $e->getMessage(); // Temporary debug
         }
     }
 }
@@ -216,6 +224,7 @@ if (!$search_performed) {
         $total_students = count($students);
     } catch (PDOException $e) {
         $error_message = "Failed to fetch students: " . $e->getMessage();
+        echo "Fetch Students DB Error: " . $e->getMessage(); // Temporary debug
     }
 }
 
@@ -227,6 +236,7 @@ if (isset($_GET['edit_id'])) {
         $edit_student = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         $error_message = "Failed to fetch student: " . $e->getMessage();
+        echo "Fetch Student DB Error: " . $e->getMessage(); // Temporary debug
     }
 }
 
