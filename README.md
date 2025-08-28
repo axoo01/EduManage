@@ -1,32 +1,35 @@
 # Student Management System
-A web-based application for managing student records, built with PHP, MySQL, HTML, CSS, and JavaScript. 
-Features secure user authentication, student CRUD operations, PDF report generation, and a responsive dashboard.
+A web-based application for managing student records, developed as a class project to demonstrate proficiency in web development. Built with PHP, PostgreSQL, HTML, CSS, and JavaScript, it features secure user authentication, student CRUD operations, PDF report generation, and a responsive dashboard. Hosted on Render (https://edumanage-o4qb.onrender.com) with source code on GitHub (https://github.com/axoo01/EduManage).
 ## Features
 
-- User Authentication: Secure login/registration with session management; prevents dashboard access for invalid credentials.
-- Student Management: Add, edit, delete, and search students (by ID, name, or enrollment date).
-- PDF Reports: Generate and download student reports using TCPDF.
-- Responsive Dashboard: Customizable background (#E5E7EB), with stats and quick actions.
+- User Authentication: Secure login and registration with session management, preventing unauthorized dashboard access.
+- Student Management: Add, edit, delete, and search students by ID, name, or enrollment date.
+- PDF Reports: Generate downloadable student reports using TCPDF.
+- Responsive Dashboard: Clean interface with customizable background (#E5E7EB), displaying stats (total students, new enrollments) and quick actions.
 - Navigation: Tabbed interface (Features, About) with smooth scrolling and URL hash support.
-- Dynamic Search: Input adapts to search type (e.g., date picker for enrollment date).
-- Sidebar: Collapsible, hidden on non-dashboard pages (index.html, login.html).
-
+- Dynamic Search: Search input adapts to type (e.g., date picker for enrollment date).
 ## Tech Stack
 
 - Frontend: HTML, CSS, JavaScript
-- Backend: PHP
-- Database: MySQL
+- Backend: PHP (with PDO for database interactions)
+- Database: PostgreSQL (Render-hosted, migrated from local MySQL)
 - Libraries: TCPDF (PDF generation)
 - Fonts: Inter (Google Fonts)
+- Deployment: Render (Docker-based, using Apache and pdo_pgsql)
+- Version Control: Git (GitHub)
+
+## Future Improvements
+Given more time, the following enhancements would elevate the project:
+
+- Framework Integration: Migrate to Laravel for improved MVC structure, routing, and middleware.
+- Role-Based Access: Implement user roles (e.g., admin, teacher) for granular permissions.
+- Advanced Search: Add filters for multiple criteria and pagination.
+- API Support: Develop RESTful APIs for integration with mobile apps or external systems.
 
 ## Troubleshooting
 
-- Login Fails: Verify manage.php credentials and Users table. Check login.html alerts.
-- Sidebar Visible: Ensure index.html/login.html lack body.dashboard.
-- PDF Errors: Confirm vendor/autoload.php exists. Check pdf_error.log.
-- Tabs Broken: Open index.html console (F12) for showTab() errors.
-
-## Security Note
-Passwords are stored as plain text. For production, hash passwords using PHP’s password_hash() and password_verify().
-
-
+- Login Fails: Verify DATABASE_URL in Render’s Environment tab and check users table in edumanage_db. Inspect login.html alerts in browser console (F12).
+- Sidebar Visible: Ensure index.html and login.html exclude body.dashboard class.
+- PDF Errors: Confirm vendor/autoload.php exists. Check pdf_error.log for TCPDF issues.
+- Tabs Broken: Check index.html console for showTab() errors in script.js.
+- Database Errors: Review /var/www/html/debug.log via Render’s Shell for connection issues (e.g., DATABASE_URL not set).
