@@ -1,5 +1,5 @@
 # Student Management System
-A web-based application for managing student records, developed as a class project to demonstrate proficiency in web development. Built with PHP, PostgreSQL, HTML, CSS, and JavaScript, it features secure user authentication, student CRUD operations, PDF report generation, and a responsive dashboard. Hosted on Render (https://edumanage-o4qb.onrender.com) with source code on GitHub (https://github.com/axoo01/EduManage).
+A web-based application for managing student records, developed as a class project to demonstrate proficiency in web development. Built with PHP, PostgreSQL, HTML, CSS, and JavaScript, it features secure user authentication, student CRUD operations, PDF report generation, and a responsive dashboard. Hosted on Render (https://edumanage-o4qb.onrender.com) with source code on GitHub 
 ## Features
 
 - User Authentication: Secure login and registration with session management, preventing unauthorized dashboard access.
